@@ -12,13 +12,19 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4}
 .wrap{max-width:1000px;margin:0 auto;padding:28px 18px 60px}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+header{display:flex;flex-wrap:nowrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+header>div:first-child{min-width:0}
+@media (max-width:760px){header{flex-wrap:wrap}.bar{flex-wrap:wrap}}
 h1{font-size:1.5rem;margin:0}
 .sub{color:var(--muted);font-size:.9rem;margin-top:2px}
-.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:nowrap;flex:none}
+.bar button{white-space:nowrap}
+.undo{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;gap:12px;align-items:center;background:var(--text);color:var(--bg);padding:10px 14px;border-radius:12px;z-index:10;font-size:.9rem}
+.undo[hidden]{display:none}
+.undo button{background:transparent;color:inherit;border:1px solid currentColor;padding:3px 10px}
 input,textarea{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
 input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
-.search{width:220px}
+.search{width:150px}
 button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:8px 14px}
 button.primary{background:var(--accent);color:var(--accent-t);border-color:transparent;font-weight:600}
 button.danger{color:var(--danger)}
@@ -78,6 +84,7 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
     </div>
     <div class="bar">
       <input id="q" class="search" type="search" placeholder="Buscar por nome ou tag…" aria-label="Buscar">
+      <button id="addBtn" class="primary" hidden="">＋ Novo item</button>
       <button id="tagsBtn" hidden="">🏷️ Tags</button>
       <button id="editBtn" class="" hidden="">✅ Concluir</button>
     </div>
@@ -86,10 +93,11 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
   <div id="filters" class="filters"></div>
   <div id="app"></div>
   <div class="status" id="status"></div>
+  <div class="undo" id="undo" hidden=""><span id="undoMsg"></span><button id="undoBtn" type="button">Desfazer</button></div>
 </div>
 
 <dialog id="dlg">
-  <div id="dlgTitle" style="font-weight:700;font-size:1.1rem">Editar item</div>
+  <div id="dlgTitle" style="font-weight:700;font-size:1.1rem">Novo item</div>
   <div class="row">
     <div><label for="fEmoji">Emoji (opcional)</label><input id="fEmoji" maxlength="16" placeholder="—" style="text-align:center;font-size:1.3rem"><button id="emojiBtn" type="button" style="width:100%;margin-top:6px;font-size:.82rem;padding:6px">😀 Escolher</button></div>
     <div><label for="fTitle">Título</label><input id="fTitle" maxlength="60" placeholder="Ex.: Planilha de professores"></div>
@@ -112,6 +120,12 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
   </div>
 </dialog>
 
+<dialog id="delDlg">
+  <div style="font-weight:700;font-size:1.1rem">Confirmar exclusão</div>
+  <p id="delMsg" style="margin:10px 0 0;color:var(--muted)"></p>
+  <div class="actions"><button id="delNo" type="button">Cancelar</button><button id="delYes" type="button" style="background:var(--danger);color:#fff;border-color:transparent;font-weight:600">Excluir</button></div>
+</dialog>
+
 <dialog id="tagDlg">
   <div style="font-weight:700;font-size:1.1rem">🏷️ Gerenciar tags</div>
   <label for="newTag">Nova tag</label>
@@ -129,6 +143,7 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
   if(!state.tools) state.tools = [];
   if(!state.tags) state.tags = [];
   state.tools.forEach(function(t){ (t.tags || []).forEach(function(g){ if(state.tags.indexOf(g) < 0) state.tags.push(g); }); });
+  var base = JSON.stringify(state);
   var artifact = null, canEdit = false, editing = false, editIdx = -1, query = '', active = [], onlyFav = false;
   try{ editing = sessionStorage.getItem('hubEdit') === '1'; }catch(e){}
 
@@ -175,6 +190,7 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
     app.textContent = '';
     $('editBtn').hidden = !canEdit;
     $('tagsBtn').hidden = !(canEdit && editing);
+    $('addBtn').hidden = !(canEdit && editing);
     $('editBtn').classList.toggle('on', editing);
     $('editBtn').textContent = editing ? '✅ Concluir' : '✏️ Editar';
     var n = $('note');
@@ -186,7 +202,7 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
     var list = state.tools.map(function(t,i){ return {t:t,i:i}; }).filter(function(o){
       var t = o.t, tg = t.tags || [];
       if(onlyFav && !t.fav) return false;
-      for(var k = 0; k < active.length; k++) if(tg.indexOf(active[k]) < 0) return false;
+      if(active.length && !active.some(function(a){ return tg.indexOf(a) > -1; })) return false;
       return !q || (t.title + ' ' + (t.desc || '') + ' ' + tg.join(' ')).toLowerCase().indexOf(q) > -1;
     });
     // favoritos primeiro (ordem manual preservada dentro de cada grupo)
@@ -218,9 +234,9 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
         var b3 = el('button',null,'Editar'); b3.onclick = function(){ openDlg(i); };
         var b4 = el('button','danger','Excluir');
         b4.onclick = function(){
-          if(b4.dataset.armed){ remove(i); return; }
-          b4.dataset.armed = '1'; b4.textContent = 'Confirmar?';
-          setTimeout(function(){ if(b4.isConnected){ delete b4.dataset.armed; b4.textContent = 'Excluir'; } }, 3000);
+          askConfirm('Tem certeza de que deseja excluir “' + t.title + '”? Essa ação não pode ser desfeita.', function(){
+            state.tools.splice(i,1); render(); save();
+          });
         };
         [b3,b4].forEach(function(b){ tools.appendChild(b); });
         card.appendChild(tools);
@@ -251,12 +267,6 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
       }
       grid.appendChild(card);
     });
-    var filtering = q || active.length || onlyFav;
-    if(editing && !filtering){
-      var add = el('div','card add','＋ Novo item');
-      add.onclick = function(){ openDlg(-1); };
-      grid.appendChild(add);
-    }
     if(!grid.children.length){
       app.appendChild(el('div','empty', state.tools.length ? 'Nada encontrado com esses filtros.' : (canEdit ? 'Nada aqui ainda. Clique em “Editar” para adicionar o primeiro item.' : 'Nenhum item cadastrado ainda.')));
     } else app.appendChild(grid);
@@ -267,7 +277,10 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
     var x = state.tools.splice(i,1)[0]; state.tools.splice(j,0,x);
     render(); save();
   }
-  function remove(i){ state.tools.splice(i,1); render(); save(); }
+  var delFn = null;
+  function askConfirm(msg, fn){ delFn = fn; $('delMsg').textContent = msg; $('delDlg').showModal(); }
+  $('delNo').onclick = function(){ delFn = null; $('delDlg').close(); };
+  $('delYes').onclick = function(){ var f = delFn; delFn = null; $('delDlg').close(); if(f) f(); };
 
   var sel = [], dragIdx = -1;
   function renderPick(){
@@ -293,9 +306,7 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
       inp.onchange = function(){ renameTag(g.name, inp.value); };
       var del = el('button','danger','Excluir');
       del.onclick = function(){
-        if(del.dataset.armed){ deleteTag(g.name); return; }
-        del.dataset.armed = '1'; del.textContent = 'Confirmar?';
-        setTimeout(function(){ if(del.isConnected){ delete del.dataset.armed; del.textContent = 'Excluir'; } }, 3000);
+        askConfirm('Excluir a tag “' + g.name + '”? Ela será removida de todos os itens que a usam.', function(){ deleteTag(g.name); });
       };
       r.appendChild(inp); r.appendChild(el('small',null, g.n + (g.n === 1 ? ' item' : ' itens'))); r.appendChild(del);
       l.appendChild(r);
@@ -347,6 +358,7 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
   $('emojiBtn').onclick = function(){ var p = $('emojiPanel'); p.hidden = !p.hidden; if(!p.hidden) renderEmoji(); };
   $('emojiNone').onclick = function(){ $('fEmoji').value = ''; $('emojiPanel').hidden = true; };
 
+  $('addBtn').onclick = function(){ openDlg(-1); };
   $('tagsBtn').onclick = function(){ renderTagMgr(); tagDlg.showModal(); };
   $('addTagBtn').onclick = addTag;
   $('newTag').onkeydown = function(e){ if(e.key === 'Enter'){ e.preventDefault(); addTag(); } };
@@ -386,6 +398,9 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
     c.querySelector('#pick').textContent = '';
     c.querySelector('#tagList').textContent = '';
     c.querySelector('#tagsBtn').hidden = true;
+    c.querySelector('#addBtn').hidden = true;
+    c.querySelector('#undo').hidden = true;
+    c.querySelector('#undoMsg').textContent = '';
     c.querySelector('#emojiTabs').textContent = '';
     c.querySelector('#emojiGrid').textContent = '';
     c.querySelector('#emojiPanel').hidden = true;
@@ -396,15 +411,24 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
     c.querySelector('#hub-data').textContent = JSON.stringify(state).replace(/</g,'\\u003c');
     return '<!doctype html>\n' + c.outerHTML;
   }
-  var timer;
+  var timer, saving = false, again = false;
+  function stash(){ try{ sessionStorage.setItem('hubPending', JSON.stringify({ts: Date.now(), d: JSON.stringify(state)})); }catch(e){} }
   function save(){
     if(!artifact) return;
+    stash();
     statusEl.textContent = 'Salvando…';
     clearTimeout(timer);
-    timer = setTimeout(async function(){
-      try{ await artifact.publish(buildHtml()); statusEl.textContent = 'Salvo ✓'; }
-      catch(e){ statusEl.textContent = 'Não foi possível salvar (' + ((e && e.code) || 'erro') + ').'; }
-    }, 400);
+    timer = setTimeout(flush, 600);
+  }
+  async function flush(){
+    if(saving){ again = true; return; }
+    saving = true; var snap = JSON.stringify(state);
+    try{
+      await artifact.publish(buildHtml());
+      if(JSON.stringify(state) === snap){ try{ sessionStorage.removeItem('hubPending'); }catch(e){} statusEl.textContent = 'Salvo ✓'; }
+    }catch(e){ statusEl.textContent = 'Não foi possível salvar (' + ((e && e.code) || 'erro') + ').'; }
+    saving = false;
+    if(again){ again = false; flush(); }
   }
 
   render();
@@ -416,6 +440,14 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
       canEdit = !!artifact && !!u && u.canEdit();
     }catch(e){}
     if(!canEdit) editing = false;
+    if(canEdit){
+      // se a página recarregou antes de uma alteração terminar de salvar, retoma de onde parou
+      try{
+        var p = JSON.parse(sessionStorage.getItem('hubPending') || 'null');
+        if(p && Date.now() - p.ts < 120000 && p.d !== base){ state = JSON.parse(p.d); render(); save(); }
+        else if(p) sessionStorage.removeItem('hubPending');
+      }catch(e){}
+    }
     render();
   })();
 })();
