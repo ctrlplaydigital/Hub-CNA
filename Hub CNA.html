@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hub CNA</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#1b1f2a;--muted:#667085;--line:#e3e6ee;--accent:#2f5bea;--accent-t:#fff;--danger:#d92d20;--star:#f5a400;--chip:#eef1fb;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141a;--card:#1b1e27;--text:#eceef4;--muted:#9aa1b2;--line:#2b2f3c;--accent:#7b9cff;--accent-t:#0e1320;--danger:#ff7a70;--star:#ffc233;--chip:#262a38;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12141a;--card:#1b1e27;--text:#eceef4;--muted:#9aa1b2;--line:#2b2f3c;--accent:#7b9cff;--accent-t:#0e1320;--danger:#ff7a70;--star:#ffc233;--chip:#262a38;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 18px 60px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+h1{font-size:1.5rem;margin:0}
+.sub{color:var(--muted);font-size:.9rem;margin-top:2px}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input,textarea{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
+input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.search{width:220px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:8px 14px}
+button.primary{background:var(--accent);color:var(--accent-t);border-color:transparent;font-weight:600}
+button.danger{color:var(--danger)}
+button.on{background:var(--accent);color:var(--accent-t);border-color:transparent}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.fchip{padding:5px 12px;border-radius:999px;font-size:.84rem;background:var(--chip);border-color:transparent}
+.fchip.on{background:var(--accent);color:var(--accent-t)}
+.fchip small{opacity:.65;margin-left:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px;text-decoration:none;color:inherit;min-height:120px;transition:transform .12s,border-color .12s}
+.card.link:hover{transform:translateY(-2px);border-color:var(--accent)}
+.stretch{position:absolute;inset:0;border-radius:16px;z-index:1}
+.pick{display:flex;gap:6px;flex-wrap:wrap}
+.pick .tag{cursor:pointer;border:1px solid var(--line);font-size:.82rem;padding:4px 10px}
+.pick .tag.sel{background:var(--accent);color:var(--accent-t);border-color:transparent}
+.trow{display:flex;gap:6px;align-items:center;margin-top:8px}
+.trow input{flex:1}
+.trow small{color:var(--muted);white-space:nowrap}
+.epanel{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:10px}
+.egrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:2px;max-height:210px;overflow-y:auto}
+.eb{border:0;background:transparent;font-size:1.4rem;padding:4px;border-radius:8px;line-height:1.2}
+.eb:hover{background:var(--chip)}
+.card[draggable=true]{cursor:grab}
+.card.dragging{opacity:.4}
+.card.over{border-style:dashed;border-color:var(--accent)}
+.card.fav{border-color:var(--star)}
+.head{display:flex;align-items:center;gap:10px;padding-right:30px}
+.emoji{font-size:1.6rem;line-height:1;flex:none}
+.t{font-weight:600;font-size:1.02rem;word-break:break-word}
+.d{color:var(--muted);font-size:.86rem}
+.star{position:absolute;z-index:2;top:10px;right:10px;border:0;background:transparent;padding:2px 6px;font-size:1.25rem;line-height:1;color:var(--muted);opacity:.6}
+.star.on{color:var(--star);opacity:1;background:transparent}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:.74rem;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--muted)}
+.tools{position:relative;z-index:2;display:flex;gap:6px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
+.tools button{padding:4px 10px;font-size:.82rem}
+.add{border-style:dashed;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;background:transparent;font-size:1rem}
+.empty{text-align:center;color:var(--muted);padding:50px 10px}
+.status{font-size:.82rem;color:var(--muted);min-height:1.2em;margin-top:18px}
+.note{font-size:.85rem;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:16px}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--text);width:min(440px,92vw);padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
+.row{display:grid;grid-template-columns:120px 1fr;gap:10px}
+.sug{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.sug .tag{cursor:pointer;border:0}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.err{color:var(--danger);font-size:.84rem;min-height:1.1em;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>🤖 Hub CNA</h1>
+      <div class="sub">Links, planilhas, sistemas e ferramentas · Programação e Robótica</div>
+    </div>
+    <div class="bar">
+      <input id="q" class="search" type="search" placeholder="Buscar por nome ou tag…" aria-label="Buscar">
+      <button id="tagsBtn" hidden="">🏷️ Tags</button>
+      <button id="editBtn" class="" hidden="">✅ Concluir</button>
+    </div>
+  </header>
+  <div id="note" class="note" hidden="">Modo de edição: as mudanças são salvas automaticamente no código da página.</div>
+  <div id="filters" class="filters"></div>
+  <div id="app"></div>
+  <div class="status" id="status"></div>
+</div>
+
+<dialog id="dlg">
+  <div id="dlgTitle" style="font-weight:700;font-size:1.1rem">Editar item</div>
+  <div class="row">
+    <div><label for="fEmoji">Emoji (opcional)</label><input id="fEmoji" maxlength="16" placeholder="—" style="text-align:center;font-size:1.3rem"><button id="emojiBtn" type="button" style="width:100%;margin-top:6px;font-size:.82rem;padding:6px">😀 Escolher</button></div>
+    <div><label for="fTitle">Título</label><input id="fTitle" maxlength="60" placeholder="Ex.: Planilha de professores"></div>
+  </div>
+  <div id="emojiPanel" class="epanel" hidden="">
+    <div id="emojiTabs" class="filters" style="margin:0 0 8px"></div>
+    <div id="emojiGrid" class="egrid"></div>
+    <button id="emojiNone" type="button" style="margin-top:8px;font-size:.82rem;padding:5px 10px">Sem emoji</button>
+  </div>
+  <label for="fUrl">Link</label>
+  <input id="fUrl" type="url" placeholder="https://…">
+  <label for="fDesc">Descrição (opcional)</label>
+  <textarea id="fDesc" rows="2" maxlength="140" placeholder="Para que serve?" style="height: 153px; width: 386px;"></textarea>
+  <label>Tags</label>
+  <div class="pick" id="pick"></div>
+  <div class="err" id="fErr"></div>
+  <div class="actions">
+    <button id="fCancel" type="button">Cancelar</button>
+    <button id="fSave" type="button" class="primary">Salvar</button>
+  </div>
+</dialog>
+
+<dialog id="tagDlg">
+  <div style="font-weight:700;font-size:1.1rem">🏷️ Gerenciar tags</div>
+  <label for="newTag">Nova tag</label>
+  <div class="trow" style="margin-top:0"><input id="newTag" maxlength="30" placeholder="Ex.: planilha"><button id="addTagBtn" type="button" class="primary">Criar</button></div>
+  <label>Tags existentes (edite o nome direto no campo)</label>
+  <div id="tagList"></div>
+  <div class="actions"><button id="tagClose" type="button" class="primary">Concluir</button></div>
+</dialog>
+
+<script type="application/json" id="hub-data">{"tools":[{"emoji":"🏦","title":"Portal Astro","url":"https://portal.ctrlplay.com.br/","desc":"Portal do aluno CNA Programação e Robótica","tags":["aluno","professor","turma"],"fav":true},{"emoji":"📦","title":"Loja","url":"https://loja.ctrlplay.com.br/","desc":"Sistema administrativo de turmas e alunos","tags":["aluno","turma"],"fav":true},{"emoji":"📌","title":"Appointy","url":"https://admin.appointy.com/","desc":"Site administrativo de aulas experimentais, apoio e reposição","tags":["aula de apoio e reposição","aula experimental"],"fav":true},{"emoji":"💵","title":"Pagamentos Professores","url":"https://app.notion.com/p/cnaidiomas/Pagamentos-Professores-CTRL-PLAY-Digital-24153dd5a2e18071ab58dee38dc875ba?source=copy_link","desc":"Sistema administrativo no Notion para acompanhamento e registro dos horários e pagamento dos professores de programação e robótica","tags":["professor"],"fav":false},{"emoji":"🔍","title":"Acompanhamento de Horários dos Professores","url":"https://app.notion.com/p/cnaidiomas/Acompanhamento-de-Hor-rios-dos-Professores-3a553dd5a2e1803da6d3d381da19ed12?source=copy_link","desc":"Sistema no Notion para acompanhamento e administração dos horários dos professores de programação e robótica","tags":["professor","turma","aula experimental","aula de apoio e reposição"],"fav":false},{"emoji":"🛠️","title":"Ferramenta de Feedback do Aluno","url":"https://ctrlplaydigital.github.io/Sistema-de-Feedback-do-Aluno/","desc":"Sistema para gerar Feedback de alunos de programação e robótica","tags":["aluno"],"fav":false},{"emoji":"🛠️","title":"Gerador de Relatório de Aula","url":"https://ctrlplaydigital.github.io/Sistema-de-Relatorio-de-Aula/","desc":"Sistema para facilitar a escrita dos relatórios de aulas por parte dos professores","tags":["turma","professor"],"fav":false},{"emoji":"🛠️","title":"Sistema de Frequência do Aluno","url":"https://ctrlplaydigital.github.io/Frequ-ncia-do-Aluno/","desc":"Sistema para facilitar a extração da frequência do aluno pelo portal astro","tags":["aluno"],"fav":false},{"emoji":"🛠️","title":"Extrair Turmas para Feedback dos Alunos","url":"https://ctrlplaydigital.github.io/Extrator-de-Turmas-Para-Feedback-Aluno/","desc":"Sistema que facilita a extração de turmas que precisam de feedback de alunos","tags":["turma","professor"],"fav":false},{"emoji":"📝","title":"Registro de Ocorrências","url":"https://ctrlplaydigital.github.io/Registro-de-Ocorr-ncias/","desc":"Sistema de registro de ocorrências dos professores","tags":["professor"],"fav":false},{"emoji":"📋","title":"Planilha de Feedback de Aulas Experimentais","url":"https://docs.google.com/spreadsheets/d/1k938qmxyz72-vKXSp1dJrPEkrpcy_cPlujW-hgyFOVc/edit?usp=sharing","desc":"Planilha de Feedback de aulas experimentais","tags":["aula experimental"],"fav":false},{"emoji":"📋","title":"Planilha de Feedback de Aulas de Apoio e Reposição","url":"https://docs.google.com/spreadsheets/d/1EJMMUOsMeVBT-lOeLeuBG67Sexh4pH8jpLANUwX-7TU/edit?usp=sharing","desc":"Planilha de Feedback de aulas de apoio e reposição","tags":["aula de apoio e reposição"],"fav":false},{"emoji":"📋","title":"Planilha de Feedbacks dos Alunos","url":"https://docs.google.com/spreadsheets/d/1A-Q8mbZFwLi8pBNveAJMTgT6I9RjzNNsvanAVZgV0rg/edit?usp=sharing","desc":"Planilha que reúne os feedbacks dos alunos gerados pela ferramenta de Feedback do Aluno","tags":["aluno"],"fav":false},{"emoji":"📋","title":"Planilha de finalização de turmas","url":"https://docs.google.com/spreadsheets/d/1fNL2bzg7ipymaA7kQjAorJe_DZf4zdv3kjOLrxf47aE/edit?usp=sharing","desc":"Planilha que reúne as informações de todas as turmas finalizadas com seus alunos e turmas continuidade. Também reúne turmas novas.","tags":["turma"],"fav":false},{"emoji":"📋","title":"Planilha de geração de reuniões no zoom","url":"https://docs.google.com/spreadsheets/d/1eZZHJl7c0BnCXQeE_6Hf3vbSriXPsgW5bQkHRZXiNPA/edit?usp=sharing","desc":"Essa planilha serve para automação da criação de salas no zoom para turmas novas.","tags":["turma"],"fav":false},{"emoji":"📋","title":"Planilha de aviso de inicio e termino","url":"https://docs.google.com/spreadsheets/d/1fuCF8BQ2HTQxpZ5AgsqgccUn9gRLBrOIQkUFnTOXUg8/edit?usp=sharing","desc":"Essa planilha serve para tabulação de alunos a serem avisados sobre inicio ou termino de turmas.","tags":["aluno"],"fav":false},{"emoji":"🗓️","title":"Aula Experimental Kids","url":"https://selecttime.appointy.com/cna-digital-services?service=srv_01KYWW9Y8RD17AHEPHQGS1HQCB","desc":"Link para marcar uma aula experimental kids","tags":["aula experimental"],"fav":false},{"emoji":"🗓️","title":"Aula Experimental Teens","url":"https://selecttime.appointy.com/cna-digital-services?service=srv_01KZ4NSCWCENZT45X34BVMF9T3","desc":"Link para marcar uma aula experimental teens","tags":["aula experimental"],"fav":false},{"emoji":"🗓️","title":"Aula Experimental Young","url":"https://selecttime.appointy.com/cna-digital-services?service=srv_01KZ4NTTQAGTQB18Q3VX67BTXH","desc":"Link para marcar uma aula experimental young","tags":["aula experimental"],"fav":false},{"emoji":"🗓️","title":"Aula Experimental Pro","url":"https://selecttime.appointy.com/cna-digital-services?service=srv_01M08DTGE5T23FAJ4RWJC5FX7V","desc":"Link para marcar uma aula experimental Pro","tags":["aula experimental"],"fav":false},{"emoji":"🗓️","title":"Aula de Apoio ou Reposição","url":"https://selecttime.appointy.com/cna-digital-services?service=srv_01KYWWX3S862GYX0JYDQ3XR6MQ","desc":"Link para marcar uma aula de apoio ou reposição","tags":["aula de apoio e reposição"],"fav":false}],"tags":["planilha","professor","turma","aluno","aula experimental","aula de apoio e reposição"]}</script>
+<script>
+(function(){
+  var state;
+  try{ state = JSON.parse(document.getElementById('hub-data').textContent); }catch(e){ state = {tools:[]}; }
+  if(!state.tools) state.tools = [];
+  if(!state.tags) state.tags = [];
+  state.tools.forEach(function(t){ (t.tags || []).forEach(function(g){ if(state.tags.indexOf(g) < 0) state.tags.push(g); }); });
+  var artifact = null, canEdit = false, editing = false, editIdx = -1, query = '', active = [], onlyFav = false;
+  try{ editing = sessionStorage.getItem('hubEdit') === '1'; }catch(e){}
+
+  var $ = function(id){ return document.getElementById(id); };
+  var app = $('app'), statusEl = $('status'), dlg = $('dlg');
+
+  function el(tag, cls, text){ var n = document.createElement(tag); if(cls) n.className = cls; if(text != null) n.textContent = text; return n; }
+  function normUrl(u){
+    u = (u || '').trim(); if(!u) return '';
+    if(!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    try{ var x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ''; }catch(e){ return ''; }
+  }
+  function parseTags(s){
+    var out = [];
+    (s || '').split(',').forEach(function(x){ x = x.trim().toLowerCase(); if(x && out.indexOf(x) < 0) out.push(x); });
+    return out;
+  }
+  function allTags(){
+    var c = {};
+    state.tools.forEach(function(t){ (t.tags || []).forEach(function(g){ c[g] = (c[g] || 0) + 1; }); });
+    return state.tags.slice().sort(function(a,b){ return a.localeCompare(b,'pt-BR'); }).map(function(g){ return {name:g, n:c[g] || 0}; });
+  }
+
+  function renderFilters(){
+    var f = $('filters'); f.textContent = '';
+    var tags = allTags().filter(function(g){ return g.n > 0; });
+    if(!tags.length && !state.tools.some(function(t){ return t.fav; })){ return; }
+    var mk = function(label, on, fn){ var b = el('button','fchip' + (on ? ' on' : ''), label); b.onclick = fn; f.appendChild(b); return b; };
+    mk('Todos', !active.length && !onlyFav, function(){ active = []; onlyFav = false; render(); });
+    var nf = state.tools.filter(function(t){ return t.fav; }).length;
+    if(nf){ var b = mk('⭐ Favoritos', onlyFav, function(){ onlyFav = !onlyFav; render(); }); b.appendChild(el('small',null,nf)); }
+    tags.forEach(function(g){
+      var b = mk('#' + g.name, active.indexOf(g.name) > -1, function(){
+        var k = active.indexOf(g.name); if(k > -1) active.splice(k,1); else active.push(g.name); render();
+      });
+      b.appendChild(el('small',null,g.n));
+    });
+  }
+
+  function render(){
+    // limpa filtros de tags que não existem mais
+    var names = allTags().map(function(g){ return g.name; });
+    active = active.filter(function(a){ return names.indexOf(a) > -1; });
+    app.textContent = '';
+    $('editBtn').hidden = !canEdit;
+    $('tagsBtn').hidden = !(canEdit && editing);
+    $('editBtn').classList.toggle('on', editing);
+    $('editBtn').textContent = editing ? '✅ Concluir' : '✏️ Editar';
+    var n = $('note');
+    n.hidden = !(canEdit && editing);
+    if(!n.hidden) n.textContent = 'Modo de edição: as mudanças são salvas automaticamente no código da página.';
+    renderFilters();
+
+    var q = query.trim().toLowerCase();
+    var list = state.tools.map(function(t,i){ return {t:t,i:i}; }).filter(function(o){
+      var t = o.t, tg = t.tags || [];
+      if(onlyFav && !t.fav) return false;
+      for(var k = 0; k < active.length; k++) if(tg.indexOf(active[k]) < 0) return false;
+      return !q || (t.title + ' ' + (t.desc || '') + ' ' + tg.join(' ')).toLowerCase().indexOf(q) > -1;
+    });
+    // favoritos primeiro (ordem manual preservada dentro de cada grupo)
+    list.sort(function(a,b){ return (b.t.fav ? 1 : 0) - (a.t.fav ? 1 : 0) || a.i - b.i; });
+
+    var grid = el('div','grid');
+    list.forEach(function(o){
+      var t = o.t, i = o.i;
+      var card = el('div','card');
+      if(t.fav) card.classList.add('fav');
+      if(!editing) card.classList.add('link');
+      var head = el('div','head');
+      if(t.emoji) head.appendChild(el('div','emoji', t.emoji));
+      head.appendChild(el('div','t', t.title));
+      card.appendChild(head);
+      if(t.desc) card.appendChild(el('div','d', t.desc));
+      if(t.tags && t.tags.length){
+        var tg = el('div','tags'); t.tags.forEach(function(g){ tg.appendChild(el('span','tag','#' + g)); });
+        card.appendChild(tg);
+      }
+      var st = el('button','star' + (t.fav ? ' on' : ''), t.fav ? '★' : '☆');
+      st.title = t.fav ? 'Remover dos favoritos' : 'Favoritar';
+      if(canEdit){
+        st.onclick = function(ev){ ev.preventDefault(); ev.stopPropagation(); t.fav = !t.fav; render(); save(); };
+      } else { st.disabled = true; if(!t.fav) st.hidden = true; }
+      card.appendChild(st);
+      if(editing){
+        var tools = el('div','tools');
+        var b3 = el('button',null,'Editar'); b3.onclick = function(){ openDlg(i); };
+        var b4 = el('button','danger','Excluir');
+        b4.onclick = function(){
+          if(b4.dataset.armed){ remove(i); return; }
+          b4.dataset.armed = '1'; b4.textContent = 'Confirmar?';
+          setTimeout(function(){ if(b4.isConnected){ delete b4.dataset.armed; b4.textContent = 'Excluir'; } }, 3000);
+        };
+        [b3,b4].forEach(function(b){ tools.appendChild(b); });
+        card.appendChild(tools);
+      }
+      if(!editing){
+        var lk = el('a','stretch'); lk.href = t.url; lk.target = '_blank'; lk.rel = 'noopener noreferrer'; lk.setAttribute('aria-label', t.title);
+        card.appendChild(lk);
+      } else {
+        card.draggable = true;
+        var sameGroup = function(){ return dragIdx > -1 && !!state.tools[dragIdx].fav === !!t.fav; };
+        card.ondragstart = function(e){
+          dragIdx = i; card.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          try{ e.dataTransfer.setData('text/plain', String(i)); }catch(x){}
+        };
+        card.ondragend = function(){
+          dragIdx = -1; card.classList.remove('dragging');
+          Array.prototype.forEach.call(document.querySelectorAll('.over'), function(n){ n.classList.remove('over'); });
+        };
+        card.ondragover = function(e){ if(dragIdx === i || !sameGroup()) return; e.preventDefault(); card.classList.add('over'); };
+        card.ondragleave = function(){ card.classList.remove('over'); };
+        card.ondrop = function(e){
+          e.preventDefault(); card.classList.remove('over');
+          if(dragIdx < 0 || dragIdx === i || !sameGroup()) return;
+          var x = state.tools.splice(dragIdx,1)[0]; state.tools.splice(i,0,x);
+          dragIdx = -1; render(); save();
+        };
+      }
+      grid.appendChild(card);
+    });
+    var filtering = q || active.length || onlyFav;
+    if(editing && !filtering){
+      var add = el('div','card add','＋ Novo item');
+      add.onclick = function(){ openDlg(-1); };
+      grid.appendChild(add);
+    }
+    if(!grid.children.length){
+      app.appendChild(el('div','empty', state.tools.length ? 'Nada encontrado com esses filtros.' : (canEdit ? 'Nada aqui ainda. Clique em “Editar” para adicionar o primeiro item.' : 'Nenhum item cadastrado ainda.')));
+    } else app.appendChild(grid);
+  }
+
+  function move(i,d){
+    var j = i + d; if(j < 0 || j >= state.tools.length) return;
+    var x = state.tools.splice(i,1)[0]; state.tools.splice(j,0,x);
+    render(); save();
+  }
+  function remove(i){ state.tools.splice(i,1); render(); save(); }
+
+  var sel = [], dragIdx = -1;
+  function renderPick(){
+    var p = $('pick'); p.textContent = '';
+    if(!state.tags.length){ p.appendChild(el('span','d','Nenhuma tag criada ainda. Use o botão “🏷️ Tags” para criar.')); return; }
+    allTags().forEach(function(g){
+      var b = el('button','tag' + (sel.indexOf(g.name) > -1 ? ' sel' : ''), g.name);
+      b.type = 'button';
+      b.onclick = function(){ var k = sel.indexOf(g.name); if(k > -1) sel.splice(k,1); else sel.push(g.name); renderPick(); };
+      p.appendChild(b);
+    });
+  }
+
+  // Gerenciador de tags (salva ao concluir, para a página não recarregar no meio)
+  var tagDlg = $('tagDlg'), tagDirty = false;
+  function cleanTag(s){ return (s || '').trim().toLowerCase().replace(/,/g,''); }
+  function renderTagMgr(){
+    var l = $('tagList'); l.textContent = '';
+    var tags = allTags();
+    if(!tags.length) l.appendChild(el('div','d','Nenhuma tag ainda.'));
+    tags.forEach(function(g){
+      var r = el('div','trow'), inp = el('input'); inp.value = g.name; inp.maxLength = 30;
+      inp.onchange = function(){ renameTag(g.name, inp.value); };
+      var del = el('button','danger','Excluir');
+      del.onclick = function(){
+        if(del.dataset.armed){ deleteTag(g.name); return; }
+        del.dataset.armed = '1'; del.textContent = 'Confirmar?';
+        setTimeout(function(){ if(del.isConnected){ delete del.dataset.armed; del.textContent = 'Excluir'; } }, 3000);
+      };
+      r.appendChild(inp); r.appendChild(el('small',null, g.n + (g.n === 1 ? ' item' : ' itens'))); r.appendChild(del);
+      l.appendChild(r);
+    });
+  }
+  function addTag(){
+    var v = cleanTag($('newTag').value); if(!v) return;
+    if(state.tags.indexOf(v) < 0){ state.tags.push(v); tagDirty = true; }
+    $('newTag').value = ''; renderTagMgr(); render();
+  }
+  function renameTag(old, nv){
+    nv = cleanTag(nv);
+    if(!nv || nv === old){ renderTagMgr(); return; }
+    state.tags = state.tags.filter(function(x){ return x !== old; });
+    if(state.tags.indexOf(nv) < 0) state.tags.push(nv);
+    state.tools.forEach(function(t){
+      if(!t.tags) return; var k = t.tags.indexOf(old);
+      if(k > -1){ t.tags.splice(k,1); if(t.tags.indexOf(nv) < 0) t.tags.push(nv); }
+    });
+    active = active.map(function(a){ return a === old ? nv : a; });
+    tagDirty = true; renderTagMgr(); render();
+  }
+  function deleteTag(g){
+    state.tags = state.tags.filter(function(x){ return x !== g; });
+    state.tools.forEach(function(t){ if(t.tags) t.tags = t.tags.filter(function(x){ return x !== g; }); });
+    tagDirty = true; renderTagMgr(); render();
+  }
+  var EMOJI = {
+    'Trabalho': '🔧 🔨 🛠️ ⚙️ 🔩 🧰 🧲 🔌 💡 🔦 📎 📌 📍 ✂️ 📏 📐 🖇️ 🗂️ 📁 📂 🗃️ 🗄️ 📋 📊 📈 📉 📝 ✏️ 🖊️ 🖋️ 📒 📓 📔 📕 📗 📘 📙 📚 📖 🔖 🏷️ 📅 📆 🗓️ ⏰ ⏱️ ⌛ 📧 ✉️ 📨 📩 📞 ☎️ 📱 💬 🗨️ 📢 📣 🔔 🔍 🔎 🔗 🔒 🔓 🔑 🧾 💳 💰 💵 🏦 🧮 📦 🗑️',
+    'Tech': '🤖 🦾 🦿 💻 🖥️ ⌨️ 🖱️ 🖨️ 💾 💿 📀 🔋 📡 🛰️ 🚀 🛸 🎮 🕹️ 👾 🧠 🧬 🔬 🔭 🧪 ⚗️ 🌐 📶 📲 ☁️ 🕸️ 🪛 🪚 🧩 📺 📻 🎧 🎤 📷 🎥 📹 🔊 🔆 ⚡ 🔮',
+    'Escola e pessoas': '🎓 🏫 🏢 🧑‍🏫 👨‍🏫 👩‍🏫 🧑‍🎓 👨‍🎓 👩‍🎓 🧑‍💻 👨‍💻 👩‍💻 👥 👤 🙋 🤝 👏 🙌 👍 👋 👶 🧒 👦 👧 🧑 👨 👩 👪 🏆 🥇 🥈 🥉 🏅 🎖️ 🎯 🎲 ♟️ 🎨 🖌️ 🎭 🎵 🎶 🎬 ✍️ 🗣️ 💪 🙏',
+    'Símbolos': '✅ ✔️ ❌ ⭐ 🌟 ✨ 💫 🔥 💥 ❗ ❓ ⚠️ 🚨 🛑 ⛔ 🚫 ♻️ 🔄 🔁 ⏩ ▶️ ⏸️ ⏹️ 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟥 🟧 🟨 🟩 🟦 🟪 ⬛ ⬜ ❤️ 🧡 💛 💚 💙 💜 🖤 🤍 💯 🆕 🆗 🆒 🔰 ➕ ➖ ➗ ✖️ 🔢 🔤 ℹ️ ⬆️ ⬇️ ➡️ ⬅️ ↗️ 🔝 🔜',
+    'Mais': '🏠 🏡 🏙️ 🌎 🌍 🌏 🗺️ 🧭 🚚 🚗 ✈️ 🚌 🌱 🌳 🌻 🌈 ☀️ 🌙 ⛅ 🌧️ ❄️ 🍎 🍕 ☕ 🍰 🎉 🎁 🎈 🎂 🐱 🐶 🦊 🐼 🦉 🐢 🦋 🐝 🐙 🦄 🐉 🦖 🐧 🏃 ⚽ 🏀 🧘 🛒 💎 👑 🎪 🎠 🗿 🧸'
+  };
+  var emojiCat = 'Trabalho';
+  function renderEmoji(){
+    var tabs = $('emojiTabs'), g = $('emojiGrid'); tabs.textContent = ''; g.textContent = '';
+    Object.keys(EMOJI).forEach(function(k){
+      var b = el('button','fchip' + (k === emojiCat ? ' on' : ''), k); b.type = 'button';
+      b.onclick = function(){ emojiCat = k; renderEmoji(); };
+      tabs.appendChild(b);
+    });
+    EMOJI[emojiCat].split(' ').forEach(function(e){
+      var b = el('button','eb',e); b.type = 'button';
+      b.onclick = function(){ $('fEmoji').value = e; $('emojiPanel').hidden = true; };
+      g.appendChild(b);
+    });
+  }
+  $('emojiBtn').onclick = function(){ var p = $('emojiPanel'); p.hidden = !p.hidden; if(!p.hidden) renderEmoji(); };
+  $('emojiNone').onclick = function(){ $('fEmoji').value = ''; $('emojiPanel').hidden = true; };
+
+  $('tagsBtn').onclick = function(){ renderTagMgr(); tagDlg.showModal(); };
+  $('addTagBtn').onclick = addTag;
+  $('newTag').onkeydown = function(e){ if(e.key === 'Enter'){ e.preventDefault(); addTag(); } };
+  $('tagClose').onclick = function(){ tagDlg.close(); };
+  tagDlg.addEventListener('close', function(){ if(tagDirty){ tagDirty = false; save(); } });
+
+  function openDlg(i){
+    editIdx = i; var t = i > -1 ? state.tools[i] : {emoji:'',title:'',url:'',desc:'',tags:[]};
+    $('dlgTitle').textContent = i > -1 ? 'Editar item' : 'Novo item';
+    $('fEmoji').value = t.emoji || ''; $('fTitle').value = t.title; $('fUrl').value = t.url; $('fDesc').value = t.desc || '';
+    sel = (t.tags || []).slice(); renderPick();
+    $('fErr').textContent = ''; $('emojiPanel').hidden = true; dlg.showModal();
+  }
+  $('fCancel').onclick = function(){ dlg.close(); };
+  $('fSave').onclick = function(){
+    var title = $('fTitle').value.trim(), url = normUrl($('fUrl').value);
+    if(!title){ $('fErr').textContent = 'Informe um título.'; return; }
+    if(!url){ $('fErr').textContent = 'Informe um link válido.'; return; }
+    var t = {emoji: $('fEmoji').value.trim(), title: title, url: url, desc: $('fDesc').value.trim(), tags: sel.slice()};
+    if(editIdx > -1){ t.fav = !!state.tools[editIdx].fav; state.tools[editIdx] = t; } else state.tools.push(t);
+    dlg.close(); render(); save();
+  };
+
+  $('editBtn').onclick = function(){
+    editing = !editing;
+    try{ sessionStorage.setItem('hubEdit', editing ? '1' : '0'); }catch(e){}
+    render();
+  };
+  $('q').oninput = function(){ query = this.value; render(); };
+
+  // Salvar: monta o HTML da página com os dados atualizados e publica uma nova versão
+  function buildHtml(){
+    var c = document.documentElement.cloneNode(true);
+    c.removeAttribute('data-theme'); c.removeAttribute('style');
+    c.querySelector('#app').textContent = '';
+    c.querySelector('#filters').textContent = '';
+    c.querySelector('#pick').textContent = '';
+    c.querySelector('#tagList').textContent = '';
+    c.querySelector('#tagsBtn').hidden = true;
+    c.querySelector('#emojiTabs').textContent = '';
+    c.querySelector('#emojiGrid').textContent = '';
+    c.querySelector('#emojiPanel').hidden = true;
+    c.querySelector('#status').textContent = '';
+    c.querySelector('#note').hidden = true;
+    c.querySelector('#editBtn').hidden = true;
+    c.querySelector('#editBtn').className = '';
+    c.querySelector('#hub-data').textContent = JSON.stringify(state).replace(/</g,'\\u003c');
+    return '<!doctype html>\n' + c.outerHTML;
+  }
+  var timer;
+  function save(){
+    if(!artifact) return;
+    statusEl.textContent = 'Salvando…';
+    clearTimeout(timer);
+    timer = setTimeout(async function(){
+      try{ await artifact.publish(buildHtml()); statusEl.textContent = 'Salvo ✓'; }
+      catch(e){ statusEl.textContent = 'Não foi possível salvar (' + ((e && e.code) || 'erro') + ').'; }
+    }, 400);
+  }
+
+  render();
+  (async function(){
+    try{
+      if(!window.claude) return;
+      artifact = await claude.use('artifact');
+      var u = await claude.use('user');
+      canEdit = !!artifact && !!u && u.canEdit();
+    }catch(e){}
+    if(!canEdit) editing = false;
+    render();
+  })();
+})();
+</script>
+
+
+</body></html>
