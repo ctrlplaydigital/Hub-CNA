@@ -3,6 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hub CNA</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E🤖%3C/text%3E%3C/svg%3E">
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--text:#1b1f2a;--muted:#667085;--line:#e3e6ee;--accent:#2f5bea;--accent-t:#fff;--danger:#d92d20;--star:#f5a400;--chip:#eef1fb;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
@@ -86,10 +87,11 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
       <input id="q" class="search" type="search" placeholder="Buscar por nome ou tag…" aria-label="Buscar">
       <button id="addBtn" class="primary" hidden="">＋ Novo item</button>
       <button id="tagsBtn" hidden="">🏷️ Tags</button>
+      <button id="dlBtn" hidden title="Baixa o index.html com os dados atuais">⬇️ Baixar página</button>
       <button id="editBtn" class="" hidden="">✅ Concluir</button>
     </div>
   </header>
-  <div id="note" class="note" hidden="">Modo de edição: as mudanças são salvas automaticamente no código da página.</div>
+  <div id="note" class="note" hidden="">Modo de edição: as mudanças ficam salvas neste navegador. Para publicar no GitHub, clique em “⬇️ Baixar página” e envie o index.html novo.</div>
   <div id="filters" class="filters"></div>
   <div id="app"></div>
   <div class="status" id="status"></div>
@@ -144,7 +146,7 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
   if(!state.tags) state.tags = [];
   state.tools.forEach(function(t){ (t.tags || []).forEach(function(g){ if(state.tags.indexOf(g) < 0) state.tags.push(g); }); });
   var base = JSON.stringify(state);
-  var artifact = null, canEdit = false, editing = false, editIdx = -1, query = '', active = [], onlyFav = false;
+  var canEdit = true, editing = false, editIdx = -1, query = '', active = [], onlyFav = false;
   try{ editing = sessionStorage.getItem('hubEdit') === '1'; }catch(e){}
 
   var $ = function(id){ return document.getElementById(id); };
@@ -191,11 +193,12 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
     $('editBtn').hidden = !canEdit;
     $('tagsBtn').hidden = !(canEdit && editing);
     $('addBtn').hidden = !(canEdit && editing);
+    $('dlBtn').hidden = !(canEdit && editing);
     $('editBtn').classList.toggle('on', editing);
     $('editBtn').textContent = editing ? '✅ Concluir' : '✏️ Editar';
     var n = $('note');
     n.hidden = !(canEdit && editing);
-    if(!n.hidden) n.textContent = 'Modo de edição: as mudanças são salvas automaticamente no código da página.';
+    if(!n.hidden) n.textContent = 'Modo de edição: as mudanças ficam salvas neste navegador. Para publicar no GitHub, clique em “⬇️ Baixar página” e envie o index.html novo.';
     renderFilters();
 
     var q = query.trim().toLowerCase();
@@ -389,7 +392,7 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
   };
   $('q').oninput = function(){ query = this.value; render(); };
 
-  // Salvar: monta o HTML da página com os dados atualizados e publica uma nova versão
+  // Salvar: guarda neste navegador (localStorage) e permite baixar o index.html atualizado
   function buildHtml(){
     var c = document.documentElement.cloneNode(true);
     c.removeAttribute('data-theme'); c.removeAttribute('style');
@@ -411,45 +414,26 @@ label{display:block;font-size:.84rem;color:var(--muted);margin:12px 0 4px}
     c.querySelector('#hub-data').textContent = JSON.stringify(state).replace(/</g,'\\u003c');
     return '<!doctype html>\n' + c.outerHTML;
   }
-  var timer, saving = false, again = false;
-  function stash(){ try{ sessionStorage.setItem('hubPending', JSON.stringify({ts: Date.now(), d: JSON.stringify(state)})); }catch(e){} }
+  var LS = 'hubCnaData';
   function save(){
-    if(!artifact) return;
-    stash();
-    statusEl.textContent = 'Salvando…';
-    clearTimeout(timer);
-    timer = setTimeout(flush, 600);
+    state.rev = Date.now();
+    try{ localStorage.setItem(LS, JSON.stringify(state)); statusEl.textContent = 'Salvo neste navegador ✓'; }
+    catch(e){ statusEl.textContent = 'Não foi possível salvar neste navegador.'; }
   }
-  async function flush(){
-    if(saving){ again = true; return; }
-    saving = true; var snap = JSON.stringify(state);
-    try{
-      await artifact.publish(buildHtml());
-      if(JSON.stringify(state) === snap){ try{ sessionStorage.removeItem('hubPending'); }catch(e){} statusEl.textContent = 'Salvo ✓'; }
-    }catch(e){ statusEl.textContent = 'Não foi possível salvar (' + ((e && e.code) || 'erro') + ').'; }
-    saving = false;
-    if(again){ again = false; flush(); }
-  }
+  $('dlBtn').onclick = function(){
+    var blob = new Blob([buildHtml()], {type:'text/html'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'index.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
+    statusEl.textContent = 'index.html baixado. Envie-o ao GitHub (substituindo o antigo) para publicar.';
+  };
 
+  // usa a versão mais recente entre a do arquivo e a guardada no navegador
+  try{
+    var saved = JSON.parse(localStorage.getItem(LS) || 'null');
+    if(saved && saved.tools && (saved.rev || 0) > (state.rev || 0)){ state = saved; if(!state.tags) state.tags = []; }
+  }catch(e){}
   render();
-  (async function(){
-    try{
-      if(!window.claude) return;
-      artifact = await claude.use('artifact');
-      var u = await claude.use('user');
-      canEdit = !!artifact && !!u && u.canEdit();
-    }catch(e){}
-    if(!canEdit) editing = false;
-    if(canEdit){
-      // se a página recarregou antes de uma alteração terminar de salvar, retoma de onde parou
-      try{
-        var p = JSON.parse(sessionStorage.getItem('hubPending') || 'null');
-        if(p && Date.now() - p.ts < 120000 && p.d !== base){ state = JSON.parse(p.d); render(); save(); }
-        else if(p) sessionStorage.removeItem('hubPending');
-      }catch(e){}
-    }
-    render();
-  })();
 })();
 </script>
 
