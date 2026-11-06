@@ -1,0 +1,231 @@
+{
+  "tools": [
+    {
+      "emoji": "🏦",
+      "title": "Portal Astro",
+      "url": "https://portal.ctrlplay.com.br/",
+      "desc": "Portal do aluno CNA Programação e Robótica",
+      "tags": [
+        "aluno",
+        "professor",
+        "turma"
+      ],
+      "fav": true
+    },
+    {
+      "emoji": "📦",
+      "title": "Loja",
+      "url": "https://loja.ctrlplay.com.br/",
+      "desc": "Sistema administrativo de turmas e alunos",
+      "tags": [
+        "aluno",
+        "turma"
+      ],
+      "fav": true
+    },
+    {
+      "emoji": "📌",
+      "title": "Appointy",
+      "url": "https://admin.appointy.com/",
+      "desc": "Site administrativo de aulas experimentais, apoio e reposição",
+      "tags": [
+        "aula de apoio e reposição",
+        "aula experimental"
+      ],
+      "fav": true
+    },
+    {
+      "emoji": "💵",
+      "title": "Pagamentos Professores",
+      "url": "https://app.notion.com/p/cnaidiomas/Pagamentos-Professores-CTRL-PLAY-Digital-24153dd5a2e18071ab58dee38dc875ba?source=copy_link",
+      "desc": "Sistema administrativo no Notion para acompanhamento e registro dos horários e pagamento dos professores de programação e robótica",
+      "tags": [
+        "professor"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "🔍",
+      "title": "Acompanhamento de Horários dos Professores",
+      "url": "https://app.notion.com/p/cnaidiomas/Acompanhamento-de-Hor-rios-dos-Professores-3a553dd5a2e1803da6d3d381da19ed12?source=copy_link",
+      "desc": "Sistema no Notion para acompanhamento e administração dos horários dos professores de programação e robótica",
+      "tags": [
+        "professor",
+        "turma",
+        "aula experimental",
+        "aula de apoio e reposição"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "🛠️",
+      "title": "Ferramenta de Feedback do Aluno",
+      "url": "https://ctrlplaydigital.github.io/Sistema-de-Feedback-do-Aluno/",
+      "desc": "Sistema para gerar Feedback de alunos de programação e robótica",
+      "tags": [
+        "aluno"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "🛠️",
+      "title": "Gerador de Relatório de Aula",
+      "url": "https://ctrlplaydigital.github.io/Sistema-de-Relatorio-de-Aula/",
+      "desc": "Sistema para facilitar a escrita dos relatórios de aulas por parte dos professores",
+      "tags": [
+        "turma",
+        "professor"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "🛠️",
+      "title": "Sistema de Frequência do Aluno",
+      "url": "https://ctrlplaydigital.github.io/Frequ-ncia-do-Aluno/",
+      "desc": "Sistema para facilitar a extração da frequência do aluno pelo portal astro",
+      "tags": [
+        "aluno"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "🛠️",
+      "title": "Extrair Turmas para Feedback dos Alunos",
+      "url": "https://ctrlplaydigital.github.io/Extrator-de-Turmas-Para-Feedback-Aluno/",
+      "desc": "Sistema que facilita a extração de turmas que precisam de feedback de alunos",
+      "tags": [
+        "turma",
+        "professor"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "📝",
+      "title": "Registro de Ocorrências",
+      "url": "https://ctrlplaydigital.github.io/Registro-de-Ocorr-ncias/",
+      "desc": "Sistema de registro de ocorrências dos professores",
+      "tags": [
+        "professor"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "📋",
+      "title": "Planilha de Feedback de Aulas Experimentais",
+      "url": "https://docs.google.com/spreadsheets/d/1k938qmxyz72-vKXSp1dJrPEkrpcy_cPlujW-hgyFOVc/edit?usp=sharing",
+      "desc": "Planilha de Feedback de aulas experimentais",
+      "tags": [
+        "aula experimental"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "📋",
+      "title": "Planilha de Feedback de Aulas de Apoio e Reposição",
+      "url": "https://docs.google.com/spreadsheets/d/1EJMMUOsMeVBT-lOeLeuBG67Sexh4pH8jpLANUwX-7TU/edit?usp=sharing",
+      "desc": "Planilha de Feedback de aulas de apoio e reposição",
+      "tags": [
+        "aula de apoio e reposição"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "📋",
+      "title": "Planilha de Feedbacks dos Alunos",
+      "url": "https://docs.google.com/spreadsheets/d/1A-Q8mbZFwLi8pBNveAJMTgT6I9RjzNNsvanAVZgV0rg/edit?usp=sharing",
+      "desc": "Planilha que reúne os feedbacks dos alunos gerados pela ferramenta de Feedback do Aluno",
+      "tags": [
+        "aluno"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "📋",
+      "title": "Planilha de finalização de turmas",
+      "url": "https://docs.google.com/spreadsheets/d/1fNL2bzg7ipymaA7kQjAorJe_DZf4zdv3kjOLrxf47aE/edit?usp=sharing",
+      "desc": "Planilha que reúne as informações de todas as turmas finalizadas com seus alunos e turmas continuidade. Também reúne turmas novas.",
+      "tags": [
+        "turma"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "📋",
+      "title": "Planilha de geração de reuniões no zoom",
+      "url": "https://docs.google.com/spreadsheets/d/1eZZHJl7c0BnCXQeE_6Hf3vbSriXPsgW5bQkHRZXiNPA/edit?usp=sharing",
+      "desc": "Essa planilha serve para automação da criação de salas no zoom para turmas novas.",
+      "tags": [
+        "turma"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "📋",
+      "title": "Planilha de aviso de inicio e termino",
+      "url": "https://docs.google.com/spreadsheets/d/1fuCF8BQ2HTQxpZ5AgsqgccUn9gRLBrOIQkUFnTOXUg8/edit?usp=sharing",
+      "desc": "Essa planilha serve para tabulação de alunos a serem avisados sobre inicio ou termino de turmas.",
+      "tags": [
+        "aluno"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "🗓️",
+      "title": "Aula Experimental Kids",
+      "url": "https://selecttime.appointy.com/cna-digital-services?service=srv_01KYWW9Y8RD17AHEPHQGS1HQCB",
+      "desc": "Link para marcar uma aula experimental kids",
+      "tags": [
+        "aula experimental"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "🗓️",
+      "title": "Aula Experimental Teens",
+      "url": "https://selecttime.appointy.com/cna-digital-services?service=srv_01KZ4NSCWCENZT45X34BVMF9T3",
+      "desc": "Link para marcar uma aula experimental teens",
+      "tags": [
+        "aula experimental"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "🗓️",
+      "title": "Aula Experimental Young",
+      "url": "https://selecttime.appointy.com/cna-digital-services?service=srv_01KZ4NTTQAGTQB18Q3VX67BTXH",
+      "desc": "Link para marcar uma aula experimental young",
+      "tags": [
+        "aula experimental"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "🗓️",
+      "title": "Aula Experimental Pro",
+      "url": "https://selecttime.appointy.com/cna-digital-services?service=srv_01M08DTGE5T23FAJ4RWJC5FX7V",
+      "desc": "Link para marcar uma aula experimental Pro",
+      "tags": [
+        "aula experimental"
+      ],
+      "fav": false
+    },
+    {
+      "emoji": "🗓️",
+      "title": "Aula de Apoio ou Reposição",
+      "url": "https://selecttime.appointy.com/cna-digital-services?service=srv_01KYWWX3S862GYX0JYDQ3XR6MQ",
+      "desc": "Link para marcar uma aula de apoio ou reposição",
+      "tags": [
+        "aula de apoio e reposição"
+      ],
+      "fav": false
+    }
+  ],
+  "tags": [
+    "planilha",
+    "professor",
+    "turma",
+    "aluno",
+    "aula experimental",
+    "aula de apoio e reposição"
+  ]
+}
